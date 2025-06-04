@@ -38,7 +38,6 @@ module.exports = class UploadFileAsHash {
             config.setting[0].value = algorithm;
             this.algorithm = algorithm;
         }
-        this.showToast(`Using algorithm: *${this.algorithm.toLocaleUpperCase()}*`, "success");
         this.startPatch();
     }
 
@@ -61,7 +60,6 @@ module.exports = class UploadFileAsHash {
                         f.filename = (ext ? `${hash}.${ext}` : hash); // rename file to hash with extension
                     }
                     else{
-                        this.showToast(`Unknown algorithm or failed to hash. Failed algorithm: *${this.algorithm.toLocaleUpperCase()}*. Attempting to use default algorithm: *MD5*`, "warning");
                         hash = await this.auto_hash(file); // try hashing using default MD5 algorithm.
                         if (hash != "null"){
                             f.filename = (ext ? `${hash}.${ext}` : hash);
