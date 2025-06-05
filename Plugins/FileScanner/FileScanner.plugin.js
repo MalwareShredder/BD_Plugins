@@ -460,7 +460,7 @@ module.exports = class UploadFileAsHash {
         }
         if (result.checksums.md5 || result.checksums["sha-256"]){
             lines.push("---");
-            lines.push("Since we don't allowed to web scrape VirusTotal without the usage of their API. This is the only way.")
+            lines.push("Since we are not allowed to web scrape VirusTotal without using their API, this is the only way.")
             lines.push(`**[VirusTotal Link](${VT_url+(result.checksums["sha-256"] ? result.checksums["sha-256"] : result.checksums.md5)})**`);
         }
         UI.showConfirmationModal("File Analysis Reports", lines, {
