@@ -51,16 +51,16 @@ const malicious_patterns = {
     "Enable editing": {
         "description": "Encourages users to enable macros or editing in RTF documents, often used in malicious contexts."
     },
-    "\\objhtml": {
+    "\objhtml": {
         "description": "This pattern is used to identify embedded HTML objects in RTF documents."
     },
-    "\\objdata": {
+    "\objdata": {
         "description": "This pattern identifies embedded binary data objects in RTF documents."
     },
-    "\\bin": {
+    "\bin": {
         "description": "This pattern is used to identify binary data in RTF documents."
     },
-    "\\objautlink": {
+    "\objautlink": {
         "description": "This pattern identifies automatic links to external content within RTF documents."
     },
     "unescape": {
