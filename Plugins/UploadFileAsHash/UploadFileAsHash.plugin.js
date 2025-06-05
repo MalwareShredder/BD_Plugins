@@ -3,6 +3,7 @@
  * @version 0.2.0
  * @description Automatically renames uploaded files to their hash values.
  * @author Malware Shredder
+ * @source https://github.com/MalwareShredder/BD_Plugins/tree/main/Plugins/UploadFileAsHash
  */
 
 const { Patcher, Webpack, UI, Data } = BdApi;
