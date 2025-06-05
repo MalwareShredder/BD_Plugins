@@ -1,6 +1,6 @@
 /**
  * @name FileScanner
- * @version 0.2.0
+ * @version 0.2.1
  * @description Allow user to check files before downloading them.
  * @author Malware Shredder
  * @source https://github.com/MalwareShredder/BD_Plugins/tree/main/Plugins/FileScanner
@@ -275,7 +275,6 @@ module.exports = class UploadFileAsHash {
             this.showToast("Performing basic analysis", "info");
             result.basic_analysis_result = await this.basic_analyze(file);
         }
-
         return result;
     }
 
@@ -409,13 +408,14 @@ module.exports = class UploadFileAsHash {
     }
 
     display_result(result){
+        const VT_url = "https://www.virustotal.com/gui/file/";
         const lines = [];
         lines.push(`**File:** ${result.filename}`);
         lines.push(`**Size:** ${result.size} bytes`);
         lines.push(`**Type:** ${result.type}`);
         lines.push(`**Entropy:** ${result.entropy}`);
         lines.push("---");
-        if (!result.scan_desc.length === 0){
+        if (result.scan_desc.length > 0){
             lines.push("**Analysis Descriptions:**");
             for (const desc of result.scan_desc){
                 lines.push(`- ${desc}`);
@@ -426,7 +426,7 @@ module.exports = class UploadFileAsHash {
         for (const [algorithm, checksum] of Object.entries(result.checksums)){
             lines.push(`- ${algorithm.toUpperCase()}: \`${checksum}\``);
         }
-        if (!this.is_objectEmpty(result.basic_analysis_result) && (!this.is_objectEmpty(result.basic_analysis_result.mal_patterns) || !result.basic_analysis_result.reg_patterns.length === 0 || !this.is_objectEmpty(result.basic_analysis_result.spec_patterns) || !this.is_objectEmpty(result.basic_analysis_result.winapi_patterns)) && !this.is_archive(result.filename)){
+        if (!this.is_objectEmpty(result.basic_analysis_result) && (!this.is_objectEmpty(result.basic_analysis_result.mal_patterns) || result.basic_analysis_result.reg_patterns.length > 0 || !this.is_objectEmpty(result.basic_analysis_result.spec_patterns) || !this.is_objectEmpty(result.basic_analysis_result.winapi_patterns)) && !this.is_archive(result.filename)){
             const analysis_result = result.basic_analysis_result;
             lines.push("---");
             lines.push("**Basic Pattern Analysis Reports**");
@@ -457,6 +457,11 @@ module.exports = class UploadFileAsHash {
                     }
                 }
             }
+        }
+        if (result.checksums.md5 || result.checksums["sha-256"]){
+            lines.push("---");
+            lines.push("Since we don't allowed to web scrape VirusTotal without the usage of their API. This is the only way.")
+            lines.push(`**[VirusTotal Link](${VT_url+(result.checksums["sha-256"] ? result.checksums["sha-256"] : result.checksums.md5)})**`);
         }
         UI.showConfirmationModal("File Analysis Reports", lines, {
             confirmText: "OK",
