@@ -3,6 +3,7 @@
  * @version 0.1.0
  * @description Allow user to check files before downloading them.
  * @author Malware Shredder
+ * @source https://github.com/MalwareShredder/BD_Plugins/tree/main/Plugins/SimpleFileScanner
  */
 
 // Web scraping is possible but might break the rules. 
