@@ -212,7 +212,7 @@ const windows_api = {
     ])
 };
 
-module.exports = class UploadFileAsHash {
+module.exports = class FileScanner {
     constructor(meta) {
         this.meta = meta;
     }
