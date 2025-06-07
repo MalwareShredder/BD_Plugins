@@ -1,6 +1,6 @@
 /**
  * @name FileScanner
- * @version 0.3.0
+ * @version 0.4.0
  * @description Allow user to check files before downloading them.
  * @author Malware Shredder
  * @source https://github.com/MalwareShredder/BD_Plugins/tree/main/Plugins/FileScanner
@@ -288,7 +288,9 @@ module.exports = class FileScanner {
             basic_analysis_result: {},
             entropy: null
         }
-        
+        if (!result.type){
+            result.type = "application/octet-stream"; // unknown file type
+        }
         const algorithms = ["md5", "sha-1", "sha-256", "sha-512"];
         this.showToast("Computing hashes", "info");
         for (const algorithm of algorithms){
@@ -327,19 +329,31 @@ module.exports = class FileScanner {
             mal_patterns: {},
             reg_patterns: [],
             spec_patterns: {},
-            winapi_patterns: {}
+            winapi_patterns: {},
+            urls: [],
+            ips: [],
+            emails: []
         };
         const buffer = await file.arrayBuffer();
         const text = new TextDecoder("utf-8", { fatal: false }).decode(buffer);
         const strings = text.match(new RegExp("[\\x20-\\x7E]{3,}", 'g')) || [];
 
-        const urlRegex = /https?:\/\/[^\s]+/i;
-        const ipRegex = /\b(?:\d{1,3}\.){3}\d{1,3}\b/;
-        const emailRegex = /\b[\w.-]+?@\w+?\.\w+?\b/;
+        const urlRegex = new RegExp(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi);
+        const ipv4Regex = new RegExp(/(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/gi);
+        const ipv6Regex = new RegExp(/(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/gi);
+        const emailRegex = new RegExp(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gi);
 
-        const urls = strings.filter(s => urlRegex.test(s));
-        const ips = strings.filter(s => ipRegex.test(s));
-        const emails = strings.filter(s => emailRegex.test(s));
+        strings.forEach(function(string){
+            if (string.match(urlRegex)){
+                result.urls.push(string);
+            }
+            if (string.match(emailRegex)){
+                result.emails.push(string);
+            }
+            if (string.match(ipv4Regex) || string.match(ipv6Regex)){
+                result.ips.push(string);
+            }
+        })
 
         for (const string of strings){
             const auto_check = await this.auto_check_pattern(string);
@@ -474,6 +488,28 @@ module.exports = class FileScanner {
         return Object.keys(obj).length === 0;
     }
 
+    is_full_ObjectEmpty(obj){
+        if (obj == null){
+            return true;
+        }
+        for (const[key,value] of Object.entries(obj)){
+            if (Array.isArray(value)){
+                if (value.length > 0){
+                    return false;
+                }
+            }
+            else if (typeof(value) == "object"){
+                if (!this.is_full_ObjectEmpty(value)){
+                    return false;
+                }
+            }
+            else{
+                return false;
+            }
+        }
+        return true;
+    }
+
     display_result(result){
         const VT_url = "https://www.virustotal.com/gui/file/";
         const lines = [];
@@ -493,35 +529,53 @@ module.exports = class FileScanner {
         for (const [algorithm, checksum] of Object.entries(result.checksums)){
             lines.push(`- ${algorithm.toUpperCase()}: \`${checksum}\``);
         }
-        if (!this.is_objectEmpty(result.basic_analysis_result) && (!this.is_objectEmpty(result.basic_analysis_result.mal_patterns) || result.basic_analysis_result.reg_patterns.length > 0 || !this.is_objectEmpty(result.basic_analysis_result.spec_patterns) || !this.is_objectEmpty(result.basic_analysis_result.winapi_patterns)) && !this.is_archive(result.filename)){
+        if (!this.is_full_ObjectEmpty(result.basic_analysis_result) && !this.is_archive(result.filename)){
             const analysis_result = result.basic_analysis_result;
             lines.push("---");
             lines.push("**Basic Pattern Analysis Reports**");
-            if (!this.is_objectEmpty(analysis_result.mal_patterns)){
-                lines.push("**Malicious Patterns Found:**");
+            if (!this.is_full_ObjectEmpty(analysis_result.mal_patterns)){
+                lines.push("__**Malicious Patterns Found:**__");
                 for (const [pattern, desc] of Object.entries(analysis_result.mal_patterns)){
                     lines.push(`- **Pattern (${pattern})**: \`${desc}\``);
                 }
             }
             if (analysis_result.reg_patterns.length > 0){
-                lines.push("**Registry Patterns Found:**");
+                lines.push("__**Registry Patterns Found:**__");
                 for (const pattern of analysis_result.reg_patterns){
-                    lines.push(`- **Pattern**: \`${pattern}\``);
+                    lines.push(`- __**Pattern**__: \`${pattern}\``);
                 }
             }
-            if (!this.is_objectEmpty(analysis_result.spec_patterns)){
-                lines.push("**Special Patterns Found:**");
+            if (!this.is_full_ObjectEmpty(analysis_result.spec_patterns)){
+                lines.push("__**Special Patterns Found:**__");
                 for (const [fam, pattern] of Object.entries(analysis_result.spec_patterns)){
                     lines.push(`- **Family (${fam})**: \`${pattern}\``);
                 }
             }
-            if (!this.is_objectEmpty(analysis_result.winapi_patterns)){
-                lines.push("**Windows Api Patterns Found:**");
+            if (!this.is_full_ObjectEmpty(analysis_result.winapi_patterns)){
+                lines.push("__**Windows Api Patterns Found:**__");
                 for (const [category, apis] of Object.entries(analysis_result.winapi_patterns)){
-                    lines.push(`- **${category}**:`);
+                    lines.push(`- __**${category}**:__`);
                     for (const api of apis){
                         lines.push(`\`${api}\``);
                     }
+                }
+            }
+            if (analysis_result.urls.length > 0){
+                lines.push("__**Url Patterns Found:**__");
+                for (const pattern of analysis_result.urls){
+                    lines.push(`- \`${pattern}\``);
+                }
+            }
+            if (analysis_result.ips.length > 0){
+                lines.push("__**IP Patterns Found:**__");
+                for (const pattern of analysis_result.ips){
+                    lines.push(`- \`${pattern}\``);
+                }
+            }
+            if (analysis_result.emails.length > 0){
+                lines.push("__**Emails Patterns Found:**__");
+                for (const pattern of analysis_result.emails){
+                    lines.push(`- \`${pattern}\``);
                 }
             }
         }
