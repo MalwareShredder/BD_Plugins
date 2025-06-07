@@ -1,8 +1,9 @@
 /**
  * @name FileScanner
- * @version 0.4.0
+ * @version 0.5.0
  * @description Allow user to check files before downloading them.
  * @author Malware Shredder
+ * @authorId 718132982858121369
  * @source https://github.com/MalwareShredder/BD_Plugins/tree/main/Plugins/FileScanner
  */
 
@@ -152,65 +153,184 @@ const windows_api = {
         "OpenFile",
         "NtOpenFile",
         "CreateFileW",
-        "ZwCreateFile"
+        "CreateFileA",
+        "ZwCreateFile",
+        "DeleteFile",
+        "DeleteFileA",
+        "DeleteFileW",
+        "CopyFile",
+        "CopyFileA",
+        "CopyFileW",
+        "MoveFile",
+        "MoveFileA",
+        "MoveFileW",
+        "SetFileAttributes",
+        "SetFileAttributesA",
+        "SetFileAttributesW"
     ]),
     "Dll/Resource Handling": new Set([
         "LoadLibrary",
         "LoadLibraryA",
-        "LoadLibraryExW"
+        "LoadLibraryW",
+        "LoadLibraryExW",
+        "GetProcAddress",
+        "FreeLibrary"
     ]),
     "Anti Debugging": new Set([
         "IsDebuggerPresent",
-        "OutputDebugString"
+        "CheckRemoteDebuggerPresent",
+        "NtQueryInformationProcess",
+        "OutputDebugString",
+        "DebugActiveProcess",
+        "ZwQueryInformationProcess",
+        "NtSetInformationThread",
+        "GetTickCount",
+        "QueryPerformanceCounter",
+        "CloseHandle"
     ]),
     "Process Creation": new Set([
         "CreateProcess",
         "CreateProcessA",
-        "CreateProcessW"
+        "CreateProcessW",
+        "WinExec",
+        "ShellExecute",
+        "ShellExecuteA",
+        "ShellExecuteW",
+        "CreateProcessAsUser",
+        "CreateProcessWithLogonW"
+    ]),
+    "Process Manipulation": new Set([
+        "OpenProcess",
+        "WriteProcessMemory",
+        "ReadProcessMemory",
+        "VirtualAllocEx",
+        "VirtualProtectEx",
+        "CreateRemoteThread",
+        "QueueUserAPC",
+        "SuspendThread",
+        "ResumeThread",
+        "NtUnmapViewOfSection",
+        "TerminateProcess"
     ]),
     "Network": new Set([
         "InternetOpen",
         "InternetOpenA",
+        "InternetOpenW",
         "InternetReadFile",
-        "InternetRead",
+        "InternetReadFileEx",
+        "InternetWriteFile",
+        "InternetConnect",
+        "HttpOpenRequest",
+        "HttpSendRequest",
         "connect",
         "sendto",
+        "recv",
         "WSAConnect",
-        "getaddrinfo"
+        "getaddrinfo",
+        "socket",
+        "WSASocket",
+        "bind",
+        "listen",
+        "accept"
     ]),
     "Service Control": new Set([
         "CreateService",
         "StartService",
-        "StartServiceA"
-    ]),
-    "Shell Execution": new Set([
-        "ShellExecute",
-        "ShellExecuteW"
+        "StartServiceA",
+        "OpenService",
+        "DeleteService",
+        "ControlService",
+        "QueryServiceStatus"
     ]),
     "Registry": new Set([
-        "RegKeyOpen",
+        "RegCreateKeyEx",
+        "RegOpenKeyEx",
         "RegOpenKeyExA",
         "RegOpenKeyExW",
         "RegOpenKeyTransactedA",
         "RegQueryValueEx",
         "RegQueryValueExA",
+        "RegQueryValueExW",
         "RegQueryInfoKeyW",
         "RegQueryInfoKeyA",
         "RegSetValue",
-        "RegGetValue"
+        "RegSetValueEx",
+        "RegGetValue",
+        "RegDeleteValue",
+        "RegDeleteKey"
     ]),
     "Keylogging": new Set([
         "GetAsyncKeyState",
         "GetKeyboardType",
-        "GetForegroundWindow"
+        "GetForegroundWindow",
+        "GetKeyState",
+        "SetWindowsHook",
+        "SetWindowsHookEx",
+        "SetWindowsHookExA",
+        "SetWindowsHookExW",
+        "CallNextHookEx"
     ]),
     "Hooking": new Set([
         "SetWindowsHook",
         "SetWindowsHookEx",
         "SetWindowsHookExA",
-        "SetWindowsHookExW"
+        "SetWindowsHookExW",
+        "CallNextHookEx",
+        "UnhookWindowsHookEx"
+    ]),
+    "Cryptography": new Set([
+        "CryptEncrypt",
+        "CryptDecrypt",
+        "CryptAcquireContext",
+        "CryptCreateHash",
+        "CryptHashData",
+        "CryptDeriveKey",
+        "CryptImportKey",
+        "CryptExportKey",
+        "CryptReleaseContext"
+    ]),
+    "System Info": new Set([
+        "GetSystemInfo",
+        "GetNativeSystemInfo",
+        "GetVersionEx",
+        "GetComputerName",
+        "GetUserName",
+        "GetSystemDirectory",
+        "GetWindowsDirectory",
+        "GetTickCount",
+        "QueryPerformanceCounter"
+    ]),
+    "Threading": new Set([
+        "CreateThread",
+        "ExitThread",
+        "OpenThread",
+        "WaitForSingleObject",
+        "WaitForMultipleObjects",
+        "CreateMutex",
+        "ReleaseMutex",
+        "Sleep",
+        "SuspendThread",
+        "ResumeThread"
+    ]),
+    "Persistence": new Set([
+        "RegCreateKeyEx",
+        "RegSetValueEx",
+        "RegDeleteValue",
+        "RegDeleteKey",
+        "SetServiceStatus",
+        "RegSaveKey",
+        "RegLoadKey",
+        "RegUnLoadKey"
     ])
 };
+
+const Regex = {
+    url: new RegExp(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi),
+    ipv4: new RegExp(/(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/gi),
+    email: new RegExp(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gi),
+    base64: new RegExp(/(?<![A-Za-z0-9+/=])(?:[A-Za-z0-9+/]{4}){2,}(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?(?![A-Za-z0-9+/=])/g),
+    hex: new RegExp(/\b(?:0x)?(?:[a-fA-F0-9]{2}[\s\-.,_/]?){4,}\b/g)
+}
 
 const config = {
     setting: [
@@ -332,31 +452,27 @@ module.exports = class FileScanner {
             winapi_patterns: {},
             urls: [],
             ips: [],
-            emails: []
+            emails: [],
+            pdbs: []
         };
         const buffer = await file.arrayBuffer();
         const text = new TextDecoder("utf-8", { fatal: false }).decode(buffer);
-        const strings = text.match(new RegExp("[\\x20-\\x7E]{3,}", 'g')) || [];
-
-        const urlRegex = new RegExp(/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi);
-        const ipv4Regex = new RegExp(/(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/gi);
-        const ipv6Regex = new RegExp(/(\b25[0-5]|\b2[0-4][0-9]|\b[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/gi);
-        const emailRegex = new RegExp(/(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))/gi);
-
-        strings.forEach(function(string){
-            if (string.match(urlRegex)){
-                result.urls.push(string);
-            }
-            if (string.match(emailRegex)){
-                result.emails.push(string);
-            }
-            if (string.match(ipv4Regex) || string.match(ipv6Regex)){
-                result.ips.push(string);
-            }
-        })
+        const strings = this.get_string(text);
 
         for (const string of strings){
             const auto_check = await this.auto_check_pattern(string);
+            if (string.toLowerCase().includes(".pdb")){
+                result.pdbs.push(string);
+            }
+            if (string.match(Regex.url)){
+                result.urls.push(string);
+            }
+            if (string.match(Regex.email)){
+                result.emails.push(string);
+            }
+            if (string.match(Regex.ipv4)){
+                result.ips.push(string);
+            }
             if (!this.is_objectEmpty(auto_check.mal_patterns)){
                 Object.assign(result.mal_patterns, auto_check.mal_patterns);
             }
@@ -366,8 +482,13 @@ module.exports = class FileScanner {
             if (!this.is_objectEmpty(auto_check.spec_patterns)){
                 Object.assign(result.spec_patterns, auto_check.spec_patterns);
             }
-            if (!this.is_objectEmpty(auto_check.winapi_patterns)){
-                Object.assign(result.winapi_patterns, auto_check.winapi_patterns);
+            for (const [category, apis] of Object.entries(auto_check.winapi_patterns)){
+                if (!result.winapi_patterns[category]){
+                    result.winapi_patterns[category] = [];
+                }
+                for (const api of apis){
+                    result.winapi_patterns[category].push(api);
+                }
             }
         }
         return result;
@@ -399,8 +520,8 @@ module.exports = class FileScanner {
                 }
             }
         }
-        for (const [category, patterns] of Object.entries(windows_api)){
-            for (const api of patterns){
+        for (const [category, apis] of Object.entries(windows_api)){
+            for (const api of apis){
                 if (str.includes(api)){
                     if (!result.winapi_patterns[category]){
                         result.winapi_patterns[category] = [];
@@ -480,6 +601,59 @@ module.exports = class FileScanner {
         return entropy;
     }
 
+    xorstr_decrypt(str, key){
+        return Array.from(str).map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ (i + key))).join('');
+    }
+
+    get_string(text){
+        const strRegex = new RegExp(/[\x20-\x7E]{3,}/g)
+        const escaped_hex = new RegExp(/\\x[0-9A-Fa-f]{2}/g);
+
+        const result = text.match(strRegex) || [];
+        const base64 = text.match(Regex.base64) || [];
+        const hex = text.match(Regex.hex) || [];
+
+        result.forEach(function(str){
+            if (str.match(escaped_hex)){
+                let decoded = str;
+                while (decoded.match(escaped_hex)){
+                    decoded = decoded.replace(escaped_hex, function(match, hex){
+                        return String.fromCharCode(parseInt(hex, 16));
+                    })
+                }
+                const match = decoded.match(strRegex) || [];
+                if (match.length / decoded.length > 0){
+                    result.push(decoded);
+                }
+            }
+        })
+        base64.forEach(function(str){
+            try {
+                const decoded = atob(str);
+                const match = decoded.match(strRegex) || [];
+                if (match.length / decoded.length > 0){
+                    result.push(decoded);
+                }
+            } catch (err){
+            }
+        })
+        hex.forEach(function(str){
+            try {
+                const hex = str.replace(/^0x/, '').replace(/[^a-fA-F0-9]/g, '');
+                let decoded = "";
+                for (let x = 0; x < hex.length; x += 2){
+                    decoded += String.fromCharCode(parseInt(hex.substr(x, 2), 16));
+                }
+                const match = decoded.match(strRegex) || [];
+                if (match.length / decoded.length > 0){
+                    result.push(decoded);
+                }
+            } catch (err){
+            }
+        })
+        return result;
+    }
+
     is_archive(filename){
         return /\.(zip|rar|7z|tar|gz)$/i.test(filename);
     }
@@ -516,15 +690,15 @@ module.exports = class FileScanner {
         lines.push(`**File-Name:** ${result.filename}`);
         lines.push(`**File-Size (bytes):** ${result.size}`);
         lines.push(`**File-Type:** ${result.type}`);
-        lines.push(`**Entropy:** ${result.entropy}`);
+        lines.push(`**File-Entropy:** ${result.entropy}`);
         lines.push("---");
         if (result.scan_desc.length > 0){
             lines.push("**Analysis Descriptions:**");
             for (const desc of result.scan_desc){
                 lines.push(`- ${desc}`);
             }
+            lines.push("---");
         }
-        lines.push("---");
         lines.push("**Checksum Hashes**")
         for (const [algorithm, checksum] of Object.entries(result.checksums)){
             lines.push(`- ${algorithm.toUpperCase()}: \`${checksum}\``);
@@ -560,22 +734,32 @@ module.exports = class FileScanner {
                     }
                 }
             }
-            if (analysis_result.urls.length > 0){
-                lines.push("__**Url Patterns Found:**__");
-                for (const pattern of analysis_result.urls){
-                    lines.push(`- \`${pattern}\``);
+            if (analysis_result.urls.length > 0 || analysis_result.ips.length > 0 || analysis_result.emails.length > 0){ // Sorry for this but it's for the line. (---)
+                lines.push("---");
+                if (analysis_result.urls.length > 0){
+                    lines.push("__**Url Patterns Found:**__");
+                    for (const pattern of analysis_result.urls){
+                        lines.push(`- \`${pattern}\``);
+                    }
                 }
-            }
-            if (analysis_result.ips.length > 0){
-                lines.push("__**IP Patterns Found:**__");
-                for (const pattern of analysis_result.ips){
-                    lines.push(`- \`${pattern}\``);
+                if (analysis_result.ips.length > 0){
+                    lines.push("__**IP Patterns Found:**__");
+                    for (const pattern of analysis_result.ips){
+                        lines.push(`- \`${pattern}\``);
+                    }
                 }
-            }
-            if (analysis_result.emails.length > 0){
-                lines.push("__**Emails Patterns Found:**__");
-                for (const pattern of analysis_result.emails){
-                    lines.push(`- \`${pattern}\``);
+                if (analysis_result.emails.length > 0){
+                    lines.push("__**Emails Patterns Found:**__");
+                    for (const pattern of analysis_result.emails){
+                        lines.push(`- \`${pattern}\``);
+                    }
+                }
+                if (analysis_result.pdbs.length > 0){
+                    lines.push("---");
+                    lines.push("__**Found PDB strings**__");
+                    for (const pdb of analysis_result.pdbs){
+                        lines.push(`- \`${pdb}\``);
+                    }
                 }
             }
         }
@@ -587,7 +771,7 @@ module.exports = class FileScanner {
         UI.showConfirmationModal("File Analysis Reports", lines, {
             confirmText: "Copy",
             cancelText: "Cancel",
-            onConfirm() {
+            onConfirm(){
                 navigator.clipboard.writeText(lines.join("\n"));
             }
         });
